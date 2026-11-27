@@ -1,6 +1,6 @@
 USE retail_analytics;
 
-CREATE VIEW vw_customer_rfm AS
+CREATE OR REPLACE VIEW vw_customer_rfm AS
 WITH customer_metrics AS (
     SELECT 
         c.CustomerKey,

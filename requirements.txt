@@ -1,0 +1,6 @@
+pandas>=2.0
+openpyxl
+sqlalchemy>=1.4.36
+pymysql
+python-dotenv
+pytest

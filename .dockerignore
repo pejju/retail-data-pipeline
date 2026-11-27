@@ -1,0 +1,10 @@
+.venv/
+.git/
+data/
+notebooks/
+docs/
+airflow/
+*.pbix
+.env
+__pycache__/
+.pytest_cache/

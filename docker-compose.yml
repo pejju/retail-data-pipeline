@@ -1,0 +1,58 @@
+# One file runs the whole stack.
+#   docker compose run --rm pipeline   -> start MySQL, run the pipeline once, exit
+#   docker compose up -d airflow       -> start MySQL + Airflow (UI at http://localhost:8080)
+#   docker compose down                -> stop everything   (add -v to also delete the database)
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: retail_analytics
+    ports:
+      - "3307:3306"            # 3307 on your PC, so it never clashes with a local MySQL on 3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  pipeline:
+    build: .
+    profiles: ["pipeline"]
+    env_file: .env
+    environment:
+      DB_HOST: mysql           # inside Docker the database is reached by its service name
+      DB_PORT: "3306"
+    volumes:
+      - ./data:/app/data       # raw file is read from, and cleaned files written to, your project folder
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  airflow:
+    build: ./airflow
+    profiles: ["airflow"]
+    command: standalone        # scheduler + web UI in one container (fine for a single-machine project)
+    env_file: .env
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      PYTHONPATH: /opt/airflow/src
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./SQL:/opt/airflow/SQL
+      - ./data:/opt/airflow/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

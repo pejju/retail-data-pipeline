@@ -10,3 +10,10 @@ __pycache__/
 # Large data files (download from UCI, see README)
 data/raw/
 data/processed/
+
+# Secrets and local tooling
+.env
+.pytest_cache/
+
+# Personal interview prep (not published)
+docs/PIPELINE_STUDY_GUIDE.md
