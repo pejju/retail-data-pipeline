@@ -1,0 +1,12 @@
+# Python environment and cache
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Office temp/lock files
+~$*
+
+# Large data files (download from UCI, see README)
+data/raw/
+data/processed/
